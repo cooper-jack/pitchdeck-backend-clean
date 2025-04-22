@@ -1,11 +1,16 @@
 export default async function handler(req, res) {
-  // ✅ CORS HEADERS
+  // ✅ FIXED: CORS HEADERS FOR BOLT/VERCEL BROWSER ACCESS
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
   const { ideaText, imageUrl } = req.body;
 
@@ -55,11 +60,12 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
           },
           {
             role: "user",
-            content: `Based on the above context, generate the following:
+            content: `Based on the above, generate:
 
-- A complete 10-12 slide investor pitch deck
-- Each slide should include: slide title, short subheading (if relevant), 3–5 bullet points, and visual design suggestions
-- Then at the end, include a section labeled: DALL·E Prompt: followed by a descriptive visual concept that represents the overall pitch deck theme`
+- A complete 10–12 slide investor pitch deck
+- Each slide should include: Slide title, short subtitle if needed, 3–5 bullet points, and a short note on visual style
+- At the end, include:
+DALL·E Prompt: followed by a single-line visual prompt representing the brand identity or concept`
           }
         ],
         temperature: 0.8
@@ -69,10 +75,13 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
     const data = await response.json();
     const fullText = data.choices?.[0]?.message?.content || "";
 
-    // Split by slide markers like "Slide 1:", "Slide 2:", etc.
-    const slides = fullText.split(/Slide \d+:/).map((s, i) => (i === 0 ? null : s.trim())).filter(Boolean);
+    // Parse slides
+    const slides = fullText
+      .split(/Slide \d+:/)
+      .map((s, i) => (i === 0 ? null : s.trim()))
+      .filter(Boolean);
 
-    // Extract DALL·E prompt at the end
+    // Extract DALL·E prompt
     const dallePromptMatch = fullText.match(/DALL·E Prompt:(.*)$/i);
     const dallePrompt = dallePromptMatch ? dallePromptMatch[1].trim() : "No visual prompt provided.";
 
@@ -83,7 +92,7 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
     });
 
   } catch (error) {
-    console.error("Full Deck Error:", error);
+    console.error("Full Deck Generation Error:", error);
     res.status(500).json({ error: "Failed to generate full deck" });
   }
 }
