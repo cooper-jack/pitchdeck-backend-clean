@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  // ✅ FIXED: CORS HEADERS FOR BOLT/VERCEL BROWSER ACCESS
+  // ✅ FIXED: UNIVERSAL CORS HEADERS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -75,13 +75,13 @@ DALL·E Prompt: followed by a single-line visual prompt representing the brand i
     const data = await response.json();
     const fullText = data.choices?.[0]?.message?.content || "";
 
-    // Parse slides
+    // ✅ Parse slides
     const slides = fullText
       .split(/Slide \d+:/)
       .map((s, i) => (i === 0 ? null : s.trim()))
       .filter(Boolean);
 
-    // Extract DALL·E prompt
+    // ✅ Extract DALL·E Prompt
     const dallePromptMatch = fullText.match(/DALL·E Prompt:(.*)$/i);
     const dallePrompt = dallePromptMatch ? dallePromptMatch[1].trim() : "No visual prompt provided.";
 
