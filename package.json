@@ -1,0 +1,8 @@
+{
+  "name": "pitchdeck-backend-clean",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "vercel dev"
+  }
+}
