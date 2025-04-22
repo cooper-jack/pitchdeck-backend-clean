@@ -55,10 +55,11 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
           },
           {
             role: "user",
-            content: `Based on the above information, generate:
+            content: `Based on the above context, generate the following:
+
 - A complete 10-12 slide investor pitch deck
-- Each slide should include: Slide title, subtitle (if relevant), 3–5 bullet points, and visual design notes
-- Also generate a DALL·E prompt for a concept image that matches this startup’s brand and pitch deck theme`
+- Each slide should include: slide title, short subheading (if relevant), 3–5 bullet points, and visual design suggestions
+- Then at the end, include a section labeled: DALL·E Prompt: followed by a descriptive visual concept that represents the overall pitch deck theme`
           }
         ],
         temperature: 0.8
@@ -68,10 +69,10 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
     const data = await response.json();
     const fullText = data.choices?.[0]?.message?.content || "";
 
-    // Split by slides using markers like "Slide 1", "Slide 2", etc.
+    // Split by slide markers like "Slide 1:", "Slide 2:", etc.
     const slides = fullText.split(/Slide \d+:/).map((s, i) => (i === 0 ? null : s.trim())).filter(Boolean);
 
-    // Try to extract DALL·E prompt if it's at the end
+    // Extract DALL·E prompt at the end
     const dallePromptMatch = fullText.match(/DALL·E Prompt:(.*)$/i);
     const dallePrompt = dallePromptMatch ? dallePromptMatch[1].trim() : "No visual prompt provided.";
 
@@ -82,7 +83,7 @@ Investors typically spend just 3-4 minutes reviewing a pitch deck initially, mak
     });
 
   } catch (error) {
-    console.error("GPT Preview Error:", error);
-    res.status(500).json({ error: "Failed to generate preview" });
+    console.error("Full Deck Error:", error);
+    res.status(500).json({ error: "Failed to generate full deck" });
   }
 }
